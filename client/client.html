@@ -1,13 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <title>Our simple HTTP server</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
-  
+
   <script>
+    const handleResponse = (response) => {
+      response.text().then((resText) => {
+        // grab the Content-Type header from the response
+        const contentType = response.headers.get('Content-Type');
+
+        // grab the content section from the HTML to put things on the screen
+        const content = document.querySelector('#content');
+        content.appendChild(document.createElement('hr'));
+
+        // create some dom elements to display later
+        const h1 = document.createElement('h1');
+        const p = document.createElement('p');
+
+        const statusPage = document.querySelector('#page');
+        h1.textContent = statusPage.options[statusPage.selectedIndex].text;
+
+        // if the server sends back json
+        if (contentType === 'application/json') {
+          // parse json back into javascript object and display
+          const parsedResponse = JSON.parse(resText);
+
+          p.textContent = `Message: ${parsedResponse.message}`;
+        }
+        // else if the server sends back xml
+        else if (contentType === 'text/xml') {
+          // parse xml into a document and select the data out
+          const parsedResponse = new window.DOMParser().parseFromString(resText, 'text/xml');
+          p.textContent = 'Message: ' + parsedResponse.querySelector('message').textContent;
+        }
+
+        //Add the elements to the screen.
+        content.appendChild(h1);
+        content.appendChild(p);
+      });
+    };
+
+    const sendFetchRequest = (url, acceptedType) => {
+      const options = {
+        method: 'GET',
+        headers: { 'Accept': acceptedType },
+      }
+
+      const fetchPromise = fetch(url, options);
+
+      fetchPromise.then((response) => { handleResponse(response) });
+    };
+
+    const init = () => {
+      // grab references to the button in our HTML
+      const sendButton = document.querySelector('#send');
+
+      // grab references to the select menus
+      const statusPage = document.querySelector('#page');
+      const type = document.querySelector('#type');
+
+      sendButton.addEventListener('click', () => {
+        document.querySelector('#content').innerHTML = "";
+
+        if (statusPage.value === '/success') {
+          if (type.value === 'application/json') {
+            sendFetchRequest('/success', 'application/json');
+          }
+          else if (type.value === 'text/xml') {
+            sendFetchRequest('/success', 'text/xml');
+          }
+        }
+        else if (statusPage.value === '/badRequest') {
+          if (type.value === 'application/json') {
+            sendFetchRequest('/badRequest', 'application/json');
+          }
+          else if (type.value === 'text/xml') {
+            sendFetchRequest('/badRequest', 'text/xml');
+          }
+        }
+        else if (statusPage.value === '/unauthorized') {
+          if (type.value === 'application/json') {
+            sendFetchRequest('/unauthorized', 'application/json');
+          }
+          else if (type.value === 'text/xml') {
+            sendFetchRequest('/unauthorized', 'text/xml');
+          }
+        }
+        else if (statusPage.value === '/forbidden') {
+          if (type.value === 'application/json') {
+            sendFetchRequest('/forbidden', 'application/json');
+          }
+          else if (type.value === 'text/xml') {
+            sendFetchRequest('/forbidden', 'text/xml');
+          }
+        }
+        else if (statusPage.value === '/internal') {
+          if (type.value === 'application/json') {
+            sendFetchRequest('/internal', 'application/json');
+          }
+          else if (type.value === 'text/xml') {
+            sendFetchRequest('/internal', 'text/xml');
+          }
+        }
+        else if (statusPage.value === '/notImplemented') {
+          if (type.value === 'application/json') {
+            sendFetchRequest('/notImplemented', 'application/json');
+          }
+          else if (type.value === 'text/xml') {
+            sendFetchRequest('/notImplemented', 'text/xml');
+          }
+        }
+        else if (statusPage.value === '/notFound') {
+          if (type.value === 'application/json') {
+            sendFetchRequest('/notFound', 'application/json');
+          }
+          else if (type.value === 'text/xml') {
+            sendFetchRequest('/notFound', 'text/xml');
+          }
+        }
+      });
+
+    };
+
+    window.onload = init;
 
   </script>
 </head>
+
 <body>
   <section id="top">
     <h3>Status Code Tests</h3>
@@ -29,4 +150,5 @@
   <section id="content">
   </section>
 </body>
+
 </html>
